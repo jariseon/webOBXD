@@ -655,8 +655,8 @@ void ObxdAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mi
 	hasMidiMessage = ppp.getNextEvent(*nextMidi,midiEventPos);
 	int samplePos = 0;
 	int numSamples = buffer.getNumSamples();
-	float* channelData1 = buffer.getSampleData(0);
-	float* channelData2 = buffer.getSampleData(1);
+	float* channelData1 = (float*)buffer.getReadPointer(0);
+	float* channelData2 = (float*)buffer.getReadPointer(1);
 	AudioPlayHead::CurrentPositionInfo pos;
     if (getPlayHead() != 0 && getPlayHead()->getCurrentPosition (pos))
     {
@@ -680,8 +680,11 @@ bool ObxdAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* ObxdAudioProcessor::createEditor()
 {
+	#ifdef JUCE_AUDIOPROCESSOR_NO_GUI
+	return nullptr;
+	#else
 	return new ObxdAudioProcessorEditor (this);
-	//return NULL;
+	#endif
 }
 
 //==============================================================================
@@ -741,6 +744,14 @@ void ObxdAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 }
 void  ObxdAudioProcessor::setCurrentProgramStateInformation(const void* data,int sizeInBytes)
 {
+#ifdef WASM
+	programs.currentProgramPtr->setDefaultValues();
+	float* patch = (float*)data;
+	for(int k = 0 ; k < PARAM_COUNT;k++) {
+		programs.currentProgramPtr->values[k] = patch[k];
+	}
+	setCurrentProgram(programs.currentProgram);
+#else
 	XmlElement* const e = getXmlFromBinary(data,sizeInBytes);
 	programs.currentProgramPtr->setDefaultValues();
 	for(int k = 0 ; k < PARAM_COUNT;k++)
@@ -750,6 +761,7 @@ void  ObxdAudioProcessor::setCurrentProgramStateInformation(const void* data,int
 	programs.currentProgramPtr->name =  e->getStringAttribute(S("programName"),S("Default"));
 	setCurrentProgram(programs.currentProgram);
 	delete e;
+#endif
 }
 void ObxdAudioProcessor::getCurrentProgramStateInformation(MemoryBlock& destData)
 {

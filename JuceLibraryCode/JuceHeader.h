@@ -28,7 +28,9 @@
 #include "modules/juce_graphics/juce_graphics.h"
 #include "modules/juce_gui_basics/juce_gui_basics.h"
 #include "modules/juce_gui_extra/juce_gui_extra.h"
+#ifndef WASM
 #include "modules/juce_opengl/juce_opengl.h"
+#endif
 #include "modules/juce_video/juce_video.h"
 
 #if ! DONT_SET_USING_JUCE_NAMESPACE
