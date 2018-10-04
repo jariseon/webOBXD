@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>webOBXD</title>
+  <script src="libs/webcomponents-lite.js"></script>
+  <script src="libs/keys.js"></script>
+  <script src="libs/wam-controller.js"></script>
+  <script src="obxd.js"></script>
+</head>
+<script>
+  async function main() {
+    let actx = new AudioContext();
+
+    // -- create WAM
+    await WAM.OBXD.importScripts(actx);
+    obxd = new WAM.OBXD(actx);
+    obxd.connect(actx.destination);
+
+    // -- frontpanel
+    let gui = await obxd.loadGUI("skin");
+    frontpanel.appendChild(gui);
+    container.style.width = gui.width + "px";
+    frontpanel.style.height = gui.height + "px";
+    frontpanel.className = container.className = "ready";
+
+    // -- midi keyboard
+    let midikeys = new QwertyHancock({
+      container: document.querySelector("#keys"), height: 60,
+      octaves: 6, startNote: 'C2', oct:4,
+      whiteNotesColour: 'white', blackNotesColour: 'black', activeColour:'orange'
+      });
+    midikeys.keyDown = (note, name) => obxd.onMidi([0x90, note, 100]);
+    midikeys.keyUp   = (note, name) => obxd.onMidi([0x80, note, 100]);
+
+    // -- load bank and select a preset
+    await obxd.loadBank("presets/factory.fxb");
+    obxd.selectPatch(31);
+  }
+</script>
+<body onload="main()">
+  <div id="container">
+    <div id="frontpanel"></div>
+    <div id="keys"></div>
+  </div>
+
+  <style>
+		#container { background:#1a1a1a; padding:5px; opacity:0 }
+		#container.ready { opacity:1 }
+    #frontpanel.ready { border-bottom:4px solid steelblue; }
+    #keys li { cursor:pointer; }
+  </style>
+</body>
+</html>
