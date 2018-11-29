@@ -62,7 +62,9 @@ WAM.OBXD = class OBXD extends WAMController
         var arr = new Uint8Array(data);
 
 	      // -- oh dear, cannot use DOMParser since fxb attribute names start with a number
-		    var s = String.fromCharCode.apply(null, arr.subarray(168, arr.length-1));
+        var s = "";
+        try { s = String.fromCharCode.apply(null, arr.subarray(168, arr.length-1)); }
+        catch(e) { s = new TextDecoder("utf-8").decode(arr.subarray(168, arr.length-1)); }
         var i1 = s.indexOf("<programs>");
         var i2 = s.indexOf("</programs>");
         if (i1 > 0 && i2 > 0)
