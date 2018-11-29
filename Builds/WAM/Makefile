@@ -20,7 +20,7 @@ LIBS = $(JUCELIB)/wasm/lib/juce-audioworklet.bc
 
 Wno = -Wno-implicit-conversion-floating-point-to-bool
 JUCEFLAGS = -DJUCE_AUDIOPROCESSOR_NO_GUI=1 -DJUCE_STANDALONE_APPLICATION=0 -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
-CFLAGS  = -std=c++11 -DWASM $(Wno) $(INC)
+CFLAGS  = -std=c++11 -DWASM -DAUDIOWORKLET $(Wno) $(INC)
 LDFLAGS = -O2
 JSFLAGS = --post-js post.js -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s BINARYEN_ASYNC_COMPILATION=0 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.OBXD'"
 
